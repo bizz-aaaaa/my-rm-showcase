@@ -82,6 +82,27 @@ export type Database = {
           },
         ]
       }
+      churches: {
+        Row: {
+          conference: string | null
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          conference?: string | null
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          conference?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
       contributions: {
         Row: {
           amount: number
@@ -276,10 +297,12 @@ export type Database = {
         Row: {
           access_token: string | null
           annual_goal: number | null
+          church_id: string | null
           created_at: string
           full_name: string
           group_id: string | null
           id: string
+          is_active: boolean
           level: string | null
           phone: string
           role: string
@@ -291,10 +314,12 @@ export type Database = {
         Insert: {
           access_token?: string | null
           annual_goal?: number | null
+          church_id?: string | null
           created_at?: string
           full_name?: string
           group_id?: string | null
           id?: string
+          is_active?: boolean
           level?: string | null
           phone: string
           role?: string
@@ -306,10 +331,12 @@ export type Database = {
         Update: {
           access_token?: string | null
           annual_goal?: number | null
+          church_id?: string | null
           created_at?: string
           full_name?: string
           group_id?: string | null
           id?: string
+          is_active?: boolean
           level?: string | null
           phone?: string
           role?: string
@@ -319,6 +346,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "profiles_church_id_fkey"
+            columns: ["church_id"]
+            isOneToOne: false
+            referencedRelation: "churches"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "profiles_group_id_fkey"
             columns: ["group_id"]
@@ -375,6 +409,432 @@ export type Database = {
             columns: ["owner_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rbac_audit_logs: {
+        Row: {
+          action: string
+          actor_id: string | null
+          created_at: string
+          details: Json
+          id: string
+          target_profile_id: string | null
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          created_at?: string
+          details?: Json
+          id?: string
+          target_profile_id?: string | null
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          created_at?: string
+          details?: Json
+          id?: string
+          target_profile_id?: string | null
+        }
+        Relationships: []
+      }
+      rbac_permissions: {
+        Row: {
+          description: string
+          key: string
+          module: string
+        }
+        Insert: {
+          description?: string
+          key: string
+          module: string
+        }
+        Update: {
+          description?: string
+          key?: string
+          module?: string
+        }
+        Relationships: []
+      }
+      rbac_role_permissions: {
+        Row: {
+          permission_key: string
+          role_key: string
+        }
+        Insert: {
+          permission_key: string
+          role_key: string
+        }
+        Update: {
+          permission_key?: string
+          role_key?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rbac_role_permissions_permission_key_fkey"
+            columns: ["permission_key"]
+            isOneToOne: false
+            referencedRelation: "rbac_permissions"
+            referencedColumns: ["key"]
+          },
+          {
+            foreignKeyName: "rbac_role_permissions_role_key_fkey"
+            columns: ["role_key"]
+            isOneToOne: false
+            referencedRelation: "rbac_roles"
+            referencedColumns: ["key"]
+          },
+        ]
+      }
+      rbac_roles: {
+        Row: {
+          description: string
+          is_active: boolean
+          is_protected: boolean
+          key: string
+          name: string
+          sort_order: number
+        }
+        Insert: {
+          description?: string
+          is_active?: boolean
+          is_protected?: boolean
+          key: string
+          name: string
+          sort_order?: number
+        }
+        Update: {
+          description?: string
+          is_active?: boolean
+          is_protected?: boolean
+          key?: string
+          name?: string
+          sort_order?: number
+        }
+        Relationships: []
+      }
+      rbac_user_roles: {
+        Row: {
+          assigned_by: string | null
+          church_id: string | null
+          created_at: string
+          id: string
+          is_active: boolean
+          profile_id: string
+          role_key: string
+        }
+        Insert: {
+          assigned_by?: string | null
+          church_id?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          profile_id: string
+          role_key: string
+        }
+        Update: {
+          assigned_by?: string | null
+          church_id?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          profile_id?: string
+          role_key?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rbac_user_roles_assigned_by_fkey"
+            columns: ["assigned_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rbac_user_roles_church_id_fkey"
+            columns: ["church_id"]
+            isOneToOne: false
+            referencedRelation: "churches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rbac_user_roles_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rbac_user_roles_role_key_fkey"
+            columns: ["role_key"]
+            isOneToOne: false
+            referencedRelation: "rbac_roles"
+            referencedColumns: ["key"]
+          },
+        ]
+      }
+      treasury_accounts: {
+        Row: {
+          account_type: string
+          church_id: string
+          created_at: string
+          created_by: string | null
+          id: string
+          is_restricted: boolean
+          name: string
+        }
+        Insert: {
+          account_type?: string
+          church_id: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_restricted?: boolean
+          name: string
+        }
+        Update: {
+          account_type?: string
+          church_id?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_restricted?: boolean
+          name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "treasury_accounts_church_id_fkey"
+            columns: ["church_id"]
+            isOneToOne: false
+            referencedRelation: "churches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      treasury_audit_flags: {
+        Row: {
+          church_id: string
+          created_at: string
+          entity_id: string
+          entity_type: string
+          flagged_by: string | null
+          id: string
+          note: string
+          resolved_by: string | null
+          status: string
+        }
+        Insert: {
+          church_id: string
+          created_at?: string
+          entity_id: string
+          entity_type: string
+          flagged_by?: string | null
+          id?: string
+          note: string
+          resolved_by?: string | null
+          status?: string
+        }
+        Update: {
+          church_id?: string
+          created_at?: string
+          entity_id?: string
+          entity_type?: string
+          flagged_by?: string | null
+          id?: string
+          note?: string
+          resolved_by?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "treasury_audit_flags_church_id_fkey"
+            columns: ["church_id"]
+            isOneToOne: false
+            referencedRelation: "churches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      treasury_expenses: {
+        Row: {
+          account_id: string | null
+          amount: number
+          approved_at: string | null
+          approved_by: string | null
+          category: string
+          church_id: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          expense_date: string
+          id: string
+          receipt_url: string | null
+          status: string
+        }
+        Insert: {
+          account_id?: string | null
+          amount: number
+          approved_at?: string | null
+          approved_by?: string | null
+          category?: string
+          church_id: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          expense_date?: string
+          id?: string
+          receipt_url?: string | null
+          status?: string
+        }
+        Update: {
+          account_id?: string | null
+          amount?: number
+          approved_at?: string | null
+          approved_by?: string | null
+          category?: string
+          church_id?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          expense_date?: string
+          id?: string
+          receipt_url?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "treasury_expenses_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "treasury_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "treasury_expenses_church_id_fkey"
+            columns: ["church_id"]
+            isOneToOne: false
+            referencedRelation: "churches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      treasury_remittances: {
+        Row: {
+          amount: number
+          approved_by: string | null
+          church_id: string
+          created_at: string
+          created_by: string | null
+          id: string
+          period: string
+          recipient: string
+          status: string
+        }
+        Insert: {
+          amount: number
+          approved_by?: string | null
+          church_id: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          period: string
+          recipient?: string
+          status?: string
+        }
+        Update: {
+          amount?: number
+          approved_by?: string | null
+          church_id?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          period?: string
+          recipient?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "treasury_remittances_church_id_fkey"
+            columns: ["church_id"]
+            isOneToOne: false
+            referencedRelation: "churches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      treasury_transactions: {
+        Row: {
+          account_id: string | null
+          amount: number
+          category: string
+          church_id: string
+          contribution_id: string | null
+          created_at: string
+          description: string | null
+          id: string
+          receipt_url: string | null
+          recorded_by: string | null
+          source: string
+          status: string
+          txn_date: string
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          account_id?: string | null
+          amount: number
+          category?: string
+          church_id: string
+          contribution_id?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          receipt_url?: string | null
+          recorded_by?: string | null
+          source?: string
+          status?: string
+          txn_date?: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          account_id?: string | null
+          amount?: number
+          category?: string
+          church_id?: string
+          contribution_id?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          receipt_url?: string | null
+          recorded_by?: string | null
+          source?: string
+          status?: string
+          txn_date?: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "treasury_transactions_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "treasury_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "treasury_transactions_church_id_fkey"
+            columns: ["church_id"]
+            isOneToOne: false
+            referencedRelation: "churches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "treasury_transactions_contribution_id_fkey"
+            columns: ["contribution_id"]
+            isOneToOne: true
+            referencedRelation: "contributions"
             referencedColumns: ["id"]
           },
         ]
